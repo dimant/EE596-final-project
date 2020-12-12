@@ -52,21 +52,15 @@ def render_text(fname, message, font):
         with Image(width=256, height=256, background=Color('white')) as img:
             draw.font_family = font
             draw.font_size = FONT_SIZE
-            draw.push()
             draw.fill_color = Color('black')
-            mutable_message = word_wrap(img,
-                                draw,
-                                message,
-                                ROI_SIDE,
-                                ROI_SIDE)
+            mutable_message = word_wrap(img, draw, message, ROI_SIDE, ROI_SIDE)
             draw.text(0, FONT_SIZE, mutable_message)
-            draw.pop()
             draw(img)
             img.save(filename=fname)
 
 
 N_IMAGES = 200
-FONTS = ["Arial", "Times New Roman"]
+FONTS = ["Comic Sans", "Courier New", "Calibri", "Candara", "Consolas", "Georgia", "Corbel", "Arial Black"]
 
 total_count_lock = threading.Lock()
 total_count = 0

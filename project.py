@@ -7,14 +7,31 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 
+
 import abstracts_dataset as A
 import tutorial_net as Tutorial
 
-def train(trainloader, net, epochs):
+# http://www.ironicsans.com/helvarialquiz/
+
+def test_net(data, net):
+    correct = 0
+    total = 0
+    with torch.no_grad():
+        images, labels = data[0].to(device), data[1].to(device)
+        outputs = net(images)
+        _, predicted = torch.max(outputs.data, 1)
+        total += labels.size(0)
+        correct += (predicted == labels).sum().item()
+
+    return 100.0 - 100.0 * correct / total
+
+def train(trainloader, testloader, net, epochs):
     net.to(device)
 
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
+    # optimizer = optim.Adam(net.parameters())
+
     for epoch in range(epochs):  # loop over the dataset multiple times
         running_loss = 0.0
         for i, data in enumerate(trainloader, 0):
@@ -34,7 +51,8 @@ def train(trainloader, net, epochs):
             # print statistics
             running_loss += loss.item()
             if i % 100 == 99:    # print every 2000 mini-batches
-                print('[%d, %5d] loss: %.3f' % (epoch + 1, i + 1, running_loss / 100))
+                accuracy = test_net(next(iter(testloader)), net)
+                print('[%d, %5d] loss: %.3f accuracy: %.3f' % (epoch + 1, i + 1, running_loss / 100, accuracy))
                 running_loss = 0.0
 
     print('Finished Training')
@@ -45,11 +63,36 @@ if __name__ == '__main__':
     print(device)
 
     transform = transforms.Compose([transforms.RandomCrop(32), transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
-    trainloader = torch.utils.data.DataLoader(A.AbstractsDataset("data-1", transform), batch_size=4, shuffle=True, num_workers=2)
-    testloader = torch.utils.data.DataLoader(A.AbstractsDataset("test-data-1", transform), batch_size=4, shuffle=True, num_workers=2)
 
-    net = Tutorial.TutorialNet()
+    # FONTS = [
+    #   "Arial", 
+    #   "Times New Roman", 
+    #   "Comic Sans", 
+    #   "Courier New", 
+    #   "Calibri", 
+    #   "Candara", 
+    #   "Consolas", 
+    #   "Georgia", 
+    #   "Corbel", 
+    #   "Arial Black"]
+    fonts = ["Arial", "Times New Roman", "Comic Sans", "Courier New", "Calibri", ]
 
-    train(trainloader, net, 1)
+    print("Loading training data...")
+    trainloader = torch.utils.data.DataLoader(A.AbstractsDataset("data-1", transform, fonts), batch_size=10, shuffle=True, num_workers=2)
+
+    print("Loading test data...")
+    testloader = torch.utils.data.DataLoader(A.AbstractsDataset("test-data-1", transform, fonts), batch_size=200, shuffle=True, num_workers=2)
+
+    print("Training network...")
+    # net = Tutorial.TutorialNet()
+
+    # load the model
+    net = torchvision.models.resnet18(pretrained=False)
+
+    # replace the last layer
+    num_features = net.fc.in_features
+    net.fc = nn.Linear(num_features, len(fonts))
+
+    train(trainloader, testloader, net, 1)
 
 
