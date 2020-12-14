@@ -49,18 +49,30 @@ FONT_SIZE = 18
 
 def render_text(fname, message, font):
     with Drawing() as draw:
-        with Image(width=256, height=256, background=Color('white')) as img:
+        with Image(width=256, height=32, background=Color('white')) as img:
             draw.font_family = font
             draw.font_size = FONT_SIZE
             draw.fill_color = Color('black')
-            mutable_message = word_wrap(img, draw, message, ROI_SIDE, ROI_SIDE)
-            draw.text(0, FONT_SIZE, mutable_message)
+            # mutable_message = word_wrap(img, draw, message, ROI_SIDE, ROI_SIDE)
+            draw.text(0, FONT_SIZE, message)
             draw(img)
             img.save(filename=fname)
 
 
 N_IMAGES = 200
-FONTS = ["Comic Sans", "Courier New", "Calibri", "Candara", "Consolas", "Georgia", "Corbel", "Arial Black"]
+# FONTS = ["Arial", "Times New Roman", "Comic Sans", "Courier New", "Calibri", "Candara", "Consolas", "Georgia", "Corbel", "Arial Black"]
+
+FONTS = [
+      "Arial", 
+      "Times New Roman", 
+      "Courier New", 
+      "Calibri", 
+      "Candara", 
+      "Georgia", 
+      "Corbel",
+      "Helvetica",
+      "Comic Sans MS",
+      "Garamond"]
 
 total_count_lock = threading.Lock()
 total_count = 0
@@ -95,12 +107,14 @@ with gzip.open('abstract-per-line.txt.gz', 'rt', encoding="utf-8") as ingzip:
     lines = ingzip.readlines()
 
 
-# images 0 - 999: Arial, Times New Roman training data
-# images 1000 - 1199: Arial, Times New Roman test data
+# images 0 - 999: all 10
+# images 1000 - 1199: all 10 test data
+# images 2000 - 4999: first 5
 
-# threading.Thread(target=worker,args=(lines, 0, 299),).start()
-# threading.Thread(target=worker,args=(lines, 300, 599),).start()
-# threading.Thread(target=worker,args=(lines, 600, 999),).start()
+# threading.Thread(target=worker,args=(lines, 1000, 1999),).start()
+# threading.Thread(target=worker,args=(lines, 2000, 2999),).start()
+# threading.Thread(target=worker,args=(lines, 3000, 3999),).start()
+# threading.Thread(target=worker,args=(lines, 4000, 4999),).start()
 
-threading.Thread(target=worker,args=(lines, 1000, 1099),).start()
-threading.Thread(target=worker,args=(lines, 1100, 1199),).start()
+threading.Thread(target=worker,args=(lines, 0, 99),).start()
+threading.Thread(target=worker,args=(lines, 100, 199),).start()

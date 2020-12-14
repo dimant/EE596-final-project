@@ -12,18 +12,21 @@ class Abstract(object):
     labels = { 
         "Arial": 0,
         "Times New Roman": 1,
-        "Comic Sans": 2,
-        "Courier New": 3,
-        "Calibri": 4,
-        "Candara": 5,
-        "Consolas": 6,
-        "Georgia": 7,
-        "Corbel": 8,
-        "Arial Black": 9
+        "Courier New": 2,
+        "Calibri": 3,
+        "Candara": 4,
+        "Georgia": 5,
+        "Corbel": 6,
+        "Helvetica": 7,
+        "Comic Sans MS": 8,
+        "Garamond": 9
         }
 
     def __init__(self, fname, transform):
         im = cv2.imread(fname)
+        # crop top line. The reason is that a lot of the input data only has one line
+        # if we do random crop we will end up with a lot of just white data
+        # im = im[:32, :128]
         self.image = torch.from_numpy(im).permute(2, 0, 1).float()
         self.font = extract_font(fname)
 
