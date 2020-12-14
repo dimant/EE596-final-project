@@ -117,12 +117,12 @@ if __name__ == '__main__':
     #   "Arial Black"]
 
     print("Loading training data...")
-    data1 = A.AbstractsDataset("data-1", transform, fonts)
-    trainloader = torch.utils.data.DataLoader(data1, batch_size=10, shuffle=True, num_workers=2)
+    data1 = A.AbstractsDataset("data-1", transform, fonts, 100000)
+    trainloader = torch.utils.data.DataLoader(data1, batch_size=100, shuffle=True, num_workers=2)
     print("loaded %d images" % (data1.__len__()))
 
     print("Loading test data...")
-    traindata1 = A.AbstractsDataset("test-data-1", transform, fonts)
+    traindata1 = A.AbstractsDataset("test-data-1", transform, fonts, 1000)
     testloader = torch.utils.data.DataLoader(traindata1, batch_size=700, shuffle=False, num_workers=2)
     print("loaded %d images" % (traindata1.__len__()))
 

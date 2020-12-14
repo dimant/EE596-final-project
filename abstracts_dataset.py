@@ -9,31 +9,18 @@ def extract_font(fname):
     return g.group(2)
 
 class Abstract(object):
-    labels = { 
-        "Arial": 0,
-        "Times New Roman": 1,
-        "Courier New": 2,
-        "Calibri": 3,
-        "Candara": 4,
-        "Georgia": 5,
-        "Corbel": 6,
-        "Helvetica": 7,
-        "Comic Sans MS": 8,
-        "Garamond": 9
-        }
 
-    def __init__(self, fname, transform):
+    def __init__(self, fonts, fname, transform):
         im = cv2.imread(fname)
         # crop top line. The reason is that a lot of the input data only has one line
         # if we do random crop we will end up with a lot of just white data
-        # im = im[:32, :128]
+        im = im[:32, :128]
         self.image = torch.from_numpy(im).permute(2, 0, 1).float()
         self.font = extract_font(fname)
+        self.label = fonts.index(self.font)
 
     def getLabel(self):
-        l = self.labels[self.font]
-
-        return l
+        return self.label
 
     def getFont(self):
         return self.font
@@ -47,16 +34,24 @@ def contains_any(string, fonts):
     return actual in fonts
 
 class AbstractsDataset(Dataset):
-    def __init__(self, directory, transform, fonts=Abstract.labels):
+
+    def __init__(self, directory, transform, fonts, max_count=0):
         self.entries = []
         self.directory = directory
         self.transform = transform
+
+        i = 0
 
         for entry in os.scandir(self.directory):
             fname = entry.path
 
             if fname.endswith(".png") and entry.is_file() and contains_any(fname, fonts):
-                self.entries.append(Abstract(fname, transform))
+                self.entries.append(Abstract(fonts, fname, transform))
+
+            if max_count > 0 and i < max_count - 1:
+                i += 1
+            else:
+                break
 
     def __len__(self):
         return len(self.entries)
