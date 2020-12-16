@@ -8,8 +8,6 @@ from wand.compat import nested
 from textwrap import wrap
 import threading
 
-# 2x 1000 images ~ 11k seconds
-
 def word_wrap(image, ctx, text, roi_width, roi_height):
     """Break long text to multiple lines, and reduce point size
     until all text fits within a bounding box."""
@@ -97,19 +95,10 @@ def worker(lines, start, end):
             print("processed: {images} time: {time}".format(images=total_count, time=time.process_time()))
         total_count_lock.release()
 
-# step = int(N_IMAGES / nthreads)
-# for i in range(0, N_IMAGES, step):
-#     print("starting worker({x},{y})".format(x = i, y=i+step-1))
-
 lines = []
 
 with gzip.open('abstract-per-line.txt.gz', 'rt', encoding="utf-8") as ingzip:
     lines = ingzip.readlines()
-
-
-# images 0 - 999: all 10
-# images 1000 - 1199: all 10 test data
-# images 2000 - 4999: first 5
 
 # threading.Thread(target=worker,args=(lines, 1000, 1999),).start()
 # threading.Thread(target=worker,args=(lines, 2000, 2999),).start()
